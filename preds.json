@@ -1,0 +1,7 @@
+{
+    "sqlfluff__sqlfluff-1625": {
+        "model_name_or_path": "default__claude-3-5-sonnet-20241022__t-0.00__p-1.00__c-2.00___swe_bench_lite_dev",
+        "instance_id": "sqlfluff__sqlfluff-1625",
+        "model_patch": "diff --git a/src/sqlfluff/rules/L031.py b/src/sqlfluff/rules/L031.py\nindex 838c6ce5d..5d593ab3c 100644\n--- a/src/sqlfluff/rules/L031.py\n+++ b/src/sqlfluff/rules/L031.py\n@@ -91,15 +91,23 @@ class Rule_L031(BaseRule):\n                 for column_reference in clause.recursive_crawl(\"column_reference\"):\n                     column_reference_segments.append(column_reference)\n \n-            return (\n-                self._lint_aliases_in_join(\n-                    base_table,\n-                    from_expression_elements,\n-                    column_reference_segments,\n-                    segment,\n-                )\n-                or None\n+            # Check if there are any joins before proceeding\n+            has_join = any(\n+                clause.is_type(\"join_clause\")\n+                for clause in from_clause_and_after\n             )\n+            \n+            if has_join:\n+                return (\n+                    self._lint_aliases_in_join(\n+                        base_table,\n+                        from_expression_elements,\n+                        column_reference_segments,\n+                        segment,\n+                    )\n+                    or None\n+                )\n+            return None\n         return None\n \n     class TableAliasInfo(NamedTuple):\n"
+    }
+}
